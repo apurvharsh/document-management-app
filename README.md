@@ -1,4 +1,4 @@
-# Meem / DocFlow AI
+#  DocFlow AI
 
 DocFlow AI is a multi-tenant document workflow and document intelligence platform built around secure ingestion, team-aware access control, approval pipelines, and AI-assisted retrieval and review.
 
