@@ -20,6 +20,8 @@ their unit of work but never close the session.
 """
 
 import uuid
+import io
+import zipfile
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
@@ -42,7 +44,6 @@ from app.services.document_parser import parse_document_to_markdown
 
 from pathlib import Path
 import re
-import magic
 from fastapi import HTTPException, UploadFile
 
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -66,8 +67,31 @@ def validate_file_magic(file_bytes: bytes, claimed_filename: str) -> bool:
     }
     if ext not in allowed_ext_mimes:
         return False
-    detected_mime = magic.from_buffer(file_bytes, mime=True)
+    detected_mime = _detect_mime(file_bytes)
     return detected_mime in allowed_ext_mimes[ext]
+
+
+def _detect_mime(file_bytes: bytes) -> str:
+    if file_bytes.startswith(b"%PDF-"):
+        return "application/pdf"
+
+    if file_bytes[:2] == b"PK":
+        try:
+            with zipfile.ZipFile(io.BytesIO(file_bytes)) as archive:
+                content_types = archive.read("[Content_Types].xml")
+            if b"wordprocessingml.document.main+xml" in content_types:
+                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        except (KeyError, zipfile.BadZipFile):
+            return "application/octet-stream"
+        return "application/zip"
+
+    if b"\x00" in file_bytes:
+        return "application/octet-stream"
+    try:
+        file_bytes.decode("utf-8")
+    except UnicodeDecodeError:
+        return "application/octet-stream"
+    return "text/plain"
 
 async def read_upload_safely(file: UploadFile) -> bytes:
     content = await file.read(MAX_UPLOAD_BYTES + 1)
