@@ -70,3 +70,20 @@ app.include_router(notifications.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+class ApiPrefixMiddleware:
+    def __init__(self, application):
+        self.application = application
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            path = scope["path"]
+            if path == "/api" or path.startswith("/api/"):
+                scope = dict(scope)
+                scope["path"] = path[4:] or "/"
+                scope["raw_path"] = scope["path"].encode("utf-8")
+        await self.application(scope, receive, send)
+
+
+app = ApiPrefixMiddleware(app)

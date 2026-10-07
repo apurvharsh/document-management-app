@@ -14,7 +14,8 @@
 //              calling screen shows a message in that section instead of
 //              failing silently. notificationsApi is REAL (see below).
 
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+export const API_BASE = import.meta.env.VITE_API_BASE ||
+  (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 
 const TOKEN_KEY = 'docflow_token';
 
