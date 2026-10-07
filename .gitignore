@@ -1,0 +1,43 @@
+# Environment — NEVER commit secrets
+venv/
+.env
+*.env
+*.db
+*.sqlite
+frontend/.env
+frontend/.env.local
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated output — not source code
+drafts/
+draft generation/
+
+# Dev-server logs and ad-hoc working scripts — not project source
+frontend/*.log
+scratch/
+
+# Subagent-driven-development scratch workspace (ledgers, briefs, review packages)
+.superpowers/
+
+# Qdrant embedded local-mode storage (on-disk vector DB, not source code)
+qdrant_storage/
+
+# Internal planning/design docs and verification reports — not for GitHub
+docs/
+docs for meridian pay/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
